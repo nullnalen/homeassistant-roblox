@@ -1,27 +1,54 @@
 blueprint:
   name: Roblox - Varsle naar barn spiller blokkert spill
   description: >
-    Sender push-varsling naar integrasjonen oppdager at et blokkert spill
-    har faatt ny spilletid siden forrige poll.
+    Sender push-varsling til companion-appen naar integrasjonen oppdager
+    at et blokkert spill har faatt ny spilletid siden forrige poll.
     Krever Roblox Parental Controls-integrasjonen.
   domain: automation
   input:
     blocked_sensor:
       name: Spiller blokkert spill-sensor
-      description: Velg binary_sensor.roblox_*_playing_blocked_game for barnet
+      description: Velg binary_sensor for barnet (Playing blocked game)
       selector:
         entity:
           integration: roblox_parental
           domain: binary_sensor
-    notify_action:
-      name: Varsling
-      description: Velg og konfigurer varsling-action
+    top_games_sensor:
+      name: Topp spill-sensor
+      description: Velg sensor for barnet (Top games this week)
       selector:
-        action: {}
+        entity:
+          integration: roblox_parental
+          domain: sensor
+    notify_device:
+      name: Telefon aa varsle
+      description: Velg telefonen som skal motta varslingen
+      selector:
+        device:
+          integration: mobile_app
+    child_name:
+      name: Barnets navn
+      default: Barnet
+      selector:
+        text: {}
+
+variables:
+  child_name: !input child_name
+  top_games_sensor: !input top_games_sensor
 
 trigger:
   - platform: state
     entity_id: !input blocked_sensor
     to: "on"
 
-action: !input notify_action
+action:
+  - device_id: !input notify_device
+    domain: mobile_app
+    type: notify
+    title: "Roblox: Blokkert spill"
+    message: >
+      {% set games = state_attr(top_games_sensor, 'games') or [] %}
+      {% set blocked = games | selectattr('blocked', 'eq', true) | list %}
+      {{ child_name }} har spilt
+      {% if blocked %}{{ blocked | map(attribute='name') | join(', ') }}{% else %}et blokkert spill{% endif %}.
+      Sjekk blokkering i Roblox-appen.

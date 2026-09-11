@@ -1,22 +1,40 @@
 blueprint:
   name: Roblox - Varsle naar dagsgrense er naAdd
   description: >
-    Sender push-varsling naar barnet har brukt opp daglig skjermtid paa Roblox.
+    Sender push-varsling til companion-appen naar barnet har brukt opp
+    daglig skjermtid paa Roblox.
     Krever Roblox Parental Controls-integrasjonen.
   domain: automation
   input:
     over_limit_sensor:
       name: Over dagsgrensen-sensor
-      description: Velg binary_sensor.roblox_*_over_daily_limit for barnet
+      description: Velg binary_sensor for barnet (Over daily limit)
       selector:
         entity:
           integration: roblox_parental
           domain: binary_sensor
-    notify_action:
-      name: Varsling
-      description: Velg og konfigurer varsling-action
+    screentime_sensor:
+      name: Skjermtid i dag-sensor
+      description: Velg sensor for barnet (Screen time today)
       selector:
-        action: {}
+        entity:
+          integration: roblox_parental
+          domain: sensor
+    notify_device:
+      name: Telefon aa varsle
+      description: Velg telefonen som skal motta varslingen
+      selector:
+        device:
+          integration: mobile_app
+    child_name:
+      name: Barnets navn
+      default: Barnet
+      selector:
+        text: {}
+
+variables:
+  child_name: !input child_name
+  screentime_sensor: !input screentime_sensor
 
 trigger:
   - platform: state
@@ -24,4 +42,15 @@ trigger:
     from: "off"
     to: "on"
 
-action: !input notify_action
+action:
+  - device_id: !input notify_device
+    domain: mobile_app
+    type: notify
+    title: "Roblox: Dagsgrense naAdd"
+    message: >
+      {% set m = states(screentime_sensor) | int(0) %}
+      {% set h = (m / 60) | int %}
+      {% set rem = m % 60 %}
+      {{ child_name }} har spilt
+      {% if h > 0 %}{{ h }}t {{ rem }}min{% else %}{{ rem }}min{% endif %}
+      i dag og naAdd dagsgrensen.
