@@ -1,7 +1,7 @@
 blueprint:
-  name: "Roblox: Varsle når dagsgrense er nådd"
+  name: "Roblox: Varsle naar dagsgrense er naAdd"
   description: >
-    Sender en push-varsling når barnet har brukt opp sin daglige skjermtid på Roblox.
+    Sender push-varsling naar barnet har brukt opp daglig skjermtid paa Roblox.
     Krever Roblox Parental Controls-integrasjonen.
   domain: automation
   input:
@@ -19,16 +19,22 @@ blueprint:
         entity:
           integration: roblox_parental
           domain: sensor
-    notify_target:
+    notify_service:
       name: Varslingstjeneste
-      description: "Navn på notify-tjenesten, f.eks. notify.mobile_app_min_telefon"
+      description: Full tjenestenavn, f.eks. notify.mobile_app_min_telefon
       selector:
-        text: {}
+        select:
+          custom_value: true
+          options: []
     child_name:
       name: Barnets navn
-      default: "Barnet"
+      default: Barnet
       selector:
         text: {}
+
+variables:
+  screentime_sensor: !input screentime_sensor
+  child_name: !input child_name
 
 trigger:
   - platform: state
@@ -37,16 +43,12 @@ trigger:
     to: "on"
 
 action:
-  - variables:
-      screentime_sensor: !input screentime_sensor
-      child_name: !input child_name
-      notify_target: !input notify_target
-      minutes_today: "{{ states(screentime_sensor) | int(0) }}"
-      time_str: >
-        {% set h = (minutes_today / 60) | int %}
-        {% set m = minutes_today % 60 %}
-        {% if h > 0 %}{{ h }}t {{ m }}min{% else %}{{ m }}min{% endif %}
-  - service: "notify.{{ notify_target }}"
+  - service: !input notify_service
     data:
-      title: "⏰ Roblox: Dagsgrense nådd"
-      message: "{{ child_name }} har spilt {{ time_str }} i dag og nådd dagsgrensen."
+      title: "Roblox: Dagsgrense naAdd"
+      message: >
+        {% set m = states(screentime_sensor) | int(0) %}
+        {% set h = (m / 60) | int %}{% set rem = m % 60 %}
+        {{ child_name }} har spilt
+        {% if h > 0 %}{{ h }}t {{ rem }}min{% else %}{{ rem }}min{% endif %}
+        i dag og naAdd dagsgrensen.

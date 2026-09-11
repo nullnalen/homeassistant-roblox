@@ -1,8 +1,8 @@
 blueprint:
-  name: "Roblox: Varsle når barn spiller blokkert spill"
+  name: "Roblox: Varsle naar barn spiller blokkert spill"
   description: >
-    Sender en push-varsling når integrasjonen oppdager at et blokkert spill
-    har fått ny spilletid siden forrige poll.
+    Sender en push-varsling naar integrasjonen oppdager at et blokkert spill
+    har faatt ny spilletid siden forrige poll.
     Krever Roblox Parental Controls-integrasjonen.
   domain: automation
   input:
@@ -20,16 +20,22 @@ blueprint:
         entity:
           integration: roblox_parental
           domain: sensor
-    notify_target:
+    notify_service:
       name: Varslingstjeneste
-      description: "Navn på notify-tjenesten, f.eks. notify.mobile_app_min_telefon"
+      description: "Velg notify-tjenesten"
       selector:
-        text: {}
+        select:
+          custom_value: true
+          options: []
     child_name:
       name: Barnets navn
-      default: "Barnet"
+      default: Barnet
       selector:
         text: {}
+
+variables:
+  top_games_sensor: !input top_games_sensor
+  child_name: !input child_name
 
 trigger:
   - platform: state
@@ -37,15 +43,12 @@ trigger:
     to: "on"
 
 action:
-  - variables:
-      top_games_sensor: !input top_games_sensor
-      child_name: !input child_name
-      notify_target: !input notify_target
-      blocked_games: >
+  - service: !input notify_service
+    data:
+      title: "Roblox: Blokkert spill"
+      message: >
         {% set games = state_attr(top_games_sensor, 'games') or [] %}
         {% set blocked = games | selectattr('blocked', 'eq', true) | list %}
-        {% if blocked %}{{ blocked | map(attribute='name') | join(', ') }}{% else %}ukjent spill{% endif %}
-  - service: "notify.{{ notify_target }}"
-    data:
-      title: "⚠️ Roblox: Blokkert spill"
-      message: "{{ child_name }} har spilt et blokkert spill: {{ blocked_games }}. Sjekk blokkering i Roblox-appen."
+        {{ child_name }} har spilt
+        {% if blocked %}{{ blocked | map(attribute='name') | join(', ') }}{% else %}et blokkert spill{% endif %}.
+        Sjekk blokkering i Roblox-appen.

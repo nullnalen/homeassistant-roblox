@@ -1,7 +1,7 @@
 blueprint:
   name: "Roblox: Daglig skjermtid-oppsummering"
   description: >
-    Sender en daglig oppsummering med dagens skjermtid og ukens topp 3 spill.
+    Sender daglig oppsummering med skjermtid og topp 3 spill.
     Krever Roblox Parental Controls-integrasjonen.
   domain: automation
   input:
@@ -26,50 +26,47 @@ blueprint:
         entity:
           integration: roblox_parental
           domain: sensor
-    notify_target:
+    notify_service:
       name: Varslingstjeneste
-      description: "Navn på notify-tjenesten, f.eks. notify.mobile_app_min_telefon"
+      description: Full tjenestenavn, f.eks. notify.mobile_app_min_telefon
       selector:
-        text: {}
+        select:
+          custom_value: true
+          options: []
     child_name:
       name: Barnets navn
-      default: "Barnet"
+      default: Barnet
       selector:
         text: {}
     summary_time:
       name: Tidspunkt for oppsummering
-      description: "Når skal den daglige oppsummeringen sendes?"
       default: "20:00:00"
       selector:
         time: {}
+
+variables:
+  screentime_today_sensor: !input screentime_today_sensor
+  screentime_week_sensor: !input screentime_week_sensor
+  top_games_sensor: !input top_games_sensor
+  child_name: !input child_name
 
 trigger:
   - platform: time
     at: !input summary_time
 
 action:
-  - variables:
-      screentime_today_sensor: !input screentime_today_sensor
-      screentime_week_sensor: !input screentime_week_sensor
-      top_games_sensor: !input top_games_sensor
-      child_name: !input child_name
-      notify_target: !input notify_target
-      today_min: "{{ states(screentime_today_sensor) | int(0) }}"
-      week_min: "{{ states(screentime_week_sensor) | int(0) }}"
-      today_str: >
-        {% set h = (today_min / 60) | int %}{% set m = today_min % 60 %}
-        {% if h > 0 %}{{ h }}t {{ m }}min{% else %}{{ m }}min{% endif %}
-      week_str: >
-        {% set h = (week_min / 60) | int %}{% set m = week_min % 60 %}
-        {% if h > 0 %}{{ h }}t {{ m }}min{% else %}{{ m }}min{% endif %}
-      games_str: >
-        {% set games = state_attr(top_games_sensor, 'games') or [] %}
-        {% set top3 = games[:3] %}
-        {% if top3 %}
-          {% for g in top3 %}{{ loop.index }}. {{ g.name }} ({{ g.minutes }}min){% if g.blocked %} ⛔{% endif %}
-          {% endfor %}
-        {% else %}Ingen spill registrert{% endif %}
-  - service: "notify.{{ notify_target }}"
+  - service: !input notify_service
     data:
-      title: "Roblox - {{ child_name }} i dag"
-      message: "I dag: {{ today_str }}\nDenne uken: {{ week_str }}\n\nTopp 3 spill:\n{{ games_str }}"
+      title: "Roblox: {{ child_name }} i dag"
+      message: >
+        {% set td = states(screentime_today_sensor) | int(0) %}
+        {% set wk = states(screentime_week_sensor) | int(0) %}
+        {% set th = (td / 60) | int %}{% set tm = td % 60 %}
+        {% set wh = (wk / 60) | int %}{% set wm = wk % 60 %}
+        I dag: {% if th > 0 %}{{ th }}t {{ tm }}min{% else %}{{ tm }}min{% endif %}
+        Denne uken: {% if wh > 0 %}{{ wh }}t {{ wm }}min{% else %}{{ wm }}min{% endif %}
+
+        Topp 3 spill:
+        {% set games = state_attr(top_games_sensor, 'games') or [] %}
+        {% for g in games[:3] %}{{ loop.index }}. {{ g.name }} ({{ g.minutes }}min){% if g.blocked %} BLOKKERT{% endif %}
+        {% else %}Ingen spill registrert{% endfor %}
