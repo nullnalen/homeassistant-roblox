@@ -1,7 +1,7 @@
 {
   "domain": "roblox_parental",
   "name": "Roblox Parental Controls",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "documentation": "https://github.com/nullnalen/homeassistant-roblox",
   "issue_tracker": "https://github.com/nullnalen/homeassistant-roblox/issues",
   "dependencies": [],
