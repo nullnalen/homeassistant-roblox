@@ -6,7 +6,7 @@ blueprint:
   domain: automation
   input:
     over_limit_sensor:
-      name: "Over dagsgrensen"-sensor
+      name: Over dagsgrensen-sensor
       description: Velg binary_sensor.roblox_*_over_daily_limit for barnet
       selector:
         entity:
@@ -21,16 +21,14 @@ blueprint:
           domain: sensor
     notify_target:
       name: Varslingstjeneste
-      description: >
-        Navn på notify-tjenesten, f.eks. notify.mobile_app_min_telefon
+      description: "Navn på notify-tjenesten, f.eks. notify.mobile_app_min_telefon"
       selector:
-        text:
-          prefix: notify.
+        text: {}
     child_name:
       name: Barnets navn
       default: "Barnet"
       selector:
-        text:
+        text: {}
 
 trigger:
   - platform: state
@@ -40,11 +38,14 @@ trigger:
 
 action:
   - variables:
+      screentime_sensor: !input screentime_sensor
+      child_name: !input child_name
+      notify_target: !input notify_target
       minutes_today: "{{ states(screentime_sensor) | int(0) }}"
-      hours: "{{ (minutes_today / 60) | int }}"
-      mins: "{{ minutes_today % 60 }}"
       time_str: >
-        {% if hours > 0 %}{{ hours }}t {{ mins }}min{% else %}{{ mins }}min{% endif %}
+        {% set h = (minutes_today / 60) | int %}
+        {% set m = minutes_today % 60 %}
+        {% if h > 0 %}{{ h }}t {{ m }}min{% else %}{{ m }}min{% endif %}
   - service: "notify.{{ notify_target }}"
     data:
       title: "⏰ Roblox: Dagsgrense nådd"

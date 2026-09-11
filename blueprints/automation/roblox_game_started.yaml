@@ -6,7 +6,7 @@ blueprint:
   domain: automation
   input:
     in_game_sensor:
-      name: "I spill"-sensor
+      name: I spill-sensor
       description: Velg binary_sensor.roblox_*_in_game for barnet
       selector:
         entity:
@@ -14,17 +14,15 @@ blueprint:
           domain: binary_sensor
     notify_target:
       name: Varslingstjeneste
-      description: >
-        Navn på notify-tjenesten, f.eks. notify.mobile_app_min_telefon
+      description: "Navn på notify-tjenesten, f.eks. notify.mobile_app_min_telefon"
       selector:
-        text:
-          prefix: notify.
+        text: {}
     child_name:
       name: Barnets navn
       description: Brukes i varslingsteksten
       default: "Barnet"
       selector:
-        text:
+        text: {}
 
 trigger:
   - platform: state
@@ -34,9 +32,11 @@ trigger:
 
 action:
   - variables:
-      game_name: >
-        {{ state_attr(trigger.entity_id, 'game') or 'et ukjent spill' }}
+      in_game_sensor: !input in_game_sensor
+      game_name: "{{ state_attr(in_game_sensor, 'game') or 'et ukjent spill' }}"
+      child_name: !input child_name
+      notify_target: !input notify_target
   - service: "notify.{{ notify_target }}"
     data:
-      title: "🎮 Roblox"
+      title: "\U0001F3AE Roblox"
       message: "{{ child_name }} startet {{ game_name }}"
