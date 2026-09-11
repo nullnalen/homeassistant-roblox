@@ -1,5 +1,5 @@
 blueprint:
-  name: "Roblox: Varsle naar barn starter spill"
+  name: Roblox - Varsle naar barn starter spill
   description: >
     Sender push-varsling naar et barn begynner aa spille Roblox.
     Krever Roblox Parental Controls-integrasjonen.
@@ -12,22 +12,16 @@ blueprint:
         entity:
           integration: roblox_parental
           domain: binary_sensor
-    notify_service:
-      name: Varslingstjeneste
-      description: Full tjenestenavn, f.eks. notify.mobile_app_min_telefon
+    notify_action:
+      name: Varsling
+      description: Velg og konfigurer varsling-action
       selector:
-        select:
-          custom_value: true
-          options: []
+        action: {}
     child_name:
       name: Barnets navn
       default: Barnet
       selector:
         text: {}
-
-variables:
-  in_game_sensor: !input in_game_sensor
-  child_name: !input child_name
 
 trigger:
   - platform: state
@@ -35,10 +29,4 @@ trigger:
     from: "off"
     to: "on"
 
-action:
-  - service: !input notify_service
-    data:
-      title: Roblox
-      message: >
-        {{ child_name }} startet
-        {{ state_attr(in_game_sensor, 'game') or 'et ukjent spill' }}
+action: !input notify_action

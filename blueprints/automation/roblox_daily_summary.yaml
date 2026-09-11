@@ -1,72 +1,23 @@
 blueprint:
-  name: "Roblox: Daglig skjermtid-oppsummering"
+  name: Roblox - Daglig skjermtid-oppsummering
   description: >
     Sender daglig oppsummering med skjermtid og topp 3 spill.
     Krever Roblox Parental Controls-integrasjonen.
   domain: automation
   input:
-    screentime_today_sensor:
-      name: Skjermtid i dag-sensor
-      description: Velg sensor.roblox_*_screen_time_today for barnet
-      selector:
-        entity:
-          integration: roblox_parental
-          domain: sensor
-    screentime_week_sensor:
-      name: Skjermtid denne uken-sensor
-      description: Velg sensor.roblox_*_screen_time_this_week for barnet
-      selector:
-        entity:
-          integration: roblox_parental
-          domain: sensor
-    top_games_sensor:
-      name: Topp spill-sensor
-      description: Velg sensor.roblox_*_top_games_this_week for barnet
-      selector:
-        entity:
-          integration: roblox_parental
-          domain: sensor
-    notify_service:
-      name: Varslingstjeneste
-      description: Full tjenestenavn, f.eks. notify.mobile_app_min_telefon
-      selector:
-        select:
-          custom_value: true
-          options: []
-    child_name:
-      name: Barnets navn
-      default: Barnet
-      selector:
-        text: {}
     summary_time:
       name: Tidspunkt for oppsummering
       default: "20:00:00"
       selector:
         time: {}
-
-variables:
-  screentime_today_sensor: !input screentime_today_sensor
-  screentime_week_sensor: !input screentime_week_sensor
-  top_games_sensor: !input top_games_sensor
-  child_name: !input child_name
+    notify_action:
+      name: Varsling
+      description: Velg og konfigurer varsling-action
+      selector:
+        action: {}
 
 trigger:
   - platform: time
     at: !input summary_time
 
-action:
-  - service: !input notify_service
-    data:
-      title: "Roblox: {{ child_name }} i dag"
-      message: >
-        {% set td = states(screentime_today_sensor) | int(0) %}
-        {% set wk = states(screentime_week_sensor) | int(0) %}
-        {% set th = (td / 60) | int %}{% set tm = td % 60 %}
-        {% set wh = (wk / 60) | int %}{% set wm = wk % 60 %}
-        I dag: {% if th > 0 %}{{ th }}t {{ tm }}min{% else %}{{ tm }}min{% endif %}
-        Denne uken: {% if wh > 0 %}{{ wh }}t {{ wm }}min{% else %}{{ wm }}min{% endif %}
-
-        Topp 3 spill:
-        {% set games = state_attr(top_games_sensor, 'games') or [] %}
-        {% for g in games[:3] %}{{ loop.index }}. {{ g.name }} ({{ g.minutes }}min){% if g.blocked %} BLOKKERT{% endif %}
-        {% else %}Ingen spill registrert{% endfor %}
+action: !input notify_action

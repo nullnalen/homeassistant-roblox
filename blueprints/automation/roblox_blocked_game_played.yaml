@@ -1,7 +1,7 @@
 blueprint:
-  name: "Roblox: Varsle naar barn spiller blokkert spill"
+  name: Roblox - Varsle naar barn spiller blokkert spill
   description: >
-    Sender en push-varsling naar integrasjonen oppdager at et blokkert spill
+    Sender push-varsling naar integrasjonen oppdager at et blokkert spill
     har faatt ny spilletid siden forrige poll.
     Krever Roblox Parental Controls-integrasjonen.
   domain: automation
@@ -13,42 +13,15 @@ blueprint:
         entity:
           integration: roblox_parental
           domain: binary_sensor
-    top_games_sensor:
-      name: Topp spill-sensor
-      description: Velg sensor.roblox_*_top_games_this_week for barnet
+    notify_action:
+      name: Varsling
+      description: Velg og konfigurer varsling-action
       selector:
-        entity:
-          integration: roblox_parental
-          domain: sensor
-    notify_service:
-      name: Varslingstjeneste
-      description: "Velg notify-tjenesten"
-      selector:
-        select:
-          custom_value: true
-          options: []
-    child_name:
-      name: Barnets navn
-      default: Barnet
-      selector:
-        text: {}
-
-variables:
-  top_games_sensor: !input top_games_sensor
-  child_name: !input child_name
+        action: {}
 
 trigger:
   - platform: state
     entity_id: !input blocked_sensor
     to: "on"
 
-action:
-  - service: !input notify_service
-    data:
-      title: "Roblox: Blokkert spill"
-      message: >
-        {% set games = state_attr(top_games_sensor, 'games') or [] %}
-        {% set blocked = games | selectattr('blocked', 'eq', true) | list %}
-        {{ child_name }} har spilt
-        {% if blocked %}{{ blocked | map(attribute='name') | join(', ') }}{% else %}et blokkert spill{% endif %}.
-        Sjekk blokkering i Roblox-appen.
+action: !input notify_action
