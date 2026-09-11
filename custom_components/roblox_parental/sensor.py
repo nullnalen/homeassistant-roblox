@@ -40,18 +40,6 @@ SENSOR_DESCRIPTIONS: tuple[RobloxSensorDescription, ...] = (
         value_fn=lambda d: d.screentime_week,
     ),
     RobloxSensorDescription(
-        key="top_game",
-        translation_key="top_game",
-        value_fn=lambda d: d.top_universes[0]["name"] if d.top_universes else None,
-        attr_fn=lambda d: {"games": d.top_universes},
-    ),
-    RobloxSensorDescription(
-        key="unique_games_week",
-        translation_key="unique_games_week",
-        state_class=SensorStateClass.MEASUREMENT,
-        value_fn=lambda d: len(d.top_universes),
-    ),
-    RobloxSensorDescription(
         key="daily_limit",
         translation_key="daily_limit",
         native_unit_of_measurement="min",
@@ -74,12 +62,59 @@ async def async_setup_entry(
     slow_coordinator: RobloxSlowCoordinator = coordinators[COORDINATOR_SLOW]
     child_ids: list[int] = entry.data[CONF_CHILD_IDS]
 
-    entities = [
+    entities: list[SensorEntity] = [
         RobloxSensor(slow_coordinator, child_id, description)
         for child_id in child_ids
         for description in SENSOR_DESCRIPTIONS
     ]
+    entities += [
+        RobloxTopGamesSensor(slow_coordinator, child_id)
+        for child_id in child_ids
+    ]
     async_add_entities(entities)
+
+
+class RobloxTopGamesSensor(CoordinatorEntity[RobloxSlowCoordinator], SensorEntity):
+    """Sensor that exposes the full weekly top games list as attributes."""
+
+    _attr_has_entity_name = True
+    _attr_translation_key = "top_games"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_native_unit_of_measurement = "spill"
+
+    def __init__(self, coordinator: RobloxSlowCoordinator, child_id: int) -> None:
+        super().__init__(coordinator)
+        self._child_id = child_id
+        self._attr_unique_id = f"{DOMAIN}_{child_id}_top_games"
+        self._attr_device_info = DeviceInfo(identifiers={(DOMAIN, str(child_id))})
+
+    @property
+    def _child_data(self) -> ChildSlowData | None:
+        if self.coordinator.data:
+            return self.coordinator.data.get(self._child_id)
+        return None
+
+    @property
+    def native_value(self) -> int | None:
+        data = self._child_data
+        return len(data.top_universes) if data else None
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        data = self._child_data
+        if not data:
+            return {}
+        return {
+            "games": [
+                {
+                    "name": g["name"],
+                    "minutes": g["minutes"],
+                    "blocked": g["blocked"],
+                }
+                for g in data.top_universes
+            ],
+            "top_game": data.top_universes[0]["name"] if data.top_universes else None,
+        }
 
 
 class RobloxSensor(CoordinatorEntity[RobloxSlowCoordinator], SensorEntity):

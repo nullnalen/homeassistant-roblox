@@ -54,11 +54,8 @@
       "screentime_week": {
         "name": "Screen time this week"
       },
-      "top_game": {
-        "name": "Top game this week"
-      },
-      "unique_games_week": {
-        "name": "Unique games this week"
+      "top_games": {
+        "name": "Top games this week"
       },
       "daily_limit": {
         "name": "Daily screen time limit"

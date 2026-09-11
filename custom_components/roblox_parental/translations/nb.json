@@ -54,11 +54,8 @@
       "screentime_week": {
         "name": "Skjermtid denne uken"
       },
-      "top_game": {
+      "top_games": {
         "name": "Topp spill denne uken"
-      },
-      "unique_games_week": {
-        "name": "Unike spill denne uken"
       },
       "daily_limit": {
         "name": "Daglig skjermtidsgrense"
