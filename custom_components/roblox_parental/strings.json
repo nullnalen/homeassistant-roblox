@@ -1,0 +1,85 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Roblox Parental Controls",
+        "description": "Enter your Roblox parent account `.ROBLOSECURITY` cookie. Log in to roblox.com in a browser, open DevTools → Application → Cookies and copy the value.",
+        "data": {
+          "roblosecurity_cookie": "ROBLOSECURITY cookie"
+        }
+      },
+      "select_children": {
+        "title": "Select children to monitor",
+        "data": {
+          "child_ids": "Children"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Re-authenticate Roblox",
+        "description": "Your Roblox session cookie has expired. Enter a new one.",
+        "data": {
+          "roblosecurity_cookie": "ROBLOSECURITY cookie"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Invalid or expired cookie. Check the value and try again.",
+      "cannot_connect": "Could not connect to Roblox. Check your network and try again.",
+      "no_children": "No linked children found on this parent account.",
+      "no_children_selected": "Select at least one child."
+    },
+    "abort": {
+      "reauth_successful": "Re-authentication successful."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Roblox Parental Controls options",
+        "description": "Leave cookie blank to keep the current one.",
+        "data": {
+          "roblosecurity_cookie": "New ROBLOSECURITY cookie (leave blank to keep current)",
+          "slow_poll_interval": "Screentime/games poll interval (minutes)",
+          "fast_poll_interval": "Presence poll interval (minutes)",
+          "presence_enabled": "Enable real-time presence (online/in-game)"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "screentime_today": {
+        "name": "Screen time today"
+      },
+      "screentime_week": {
+        "name": "Screen time this week"
+      },
+      "top_game": {
+        "name": "Top game this week"
+      },
+      "unique_games_week": {
+        "name": "Unique games this week"
+      },
+      "daily_limit": {
+        "name": "Daily screen time limit"
+      },
+      "age_level": {
+        "name": "Age restriction level"
+      }
+    },
+    "binary_sensor": {
+      "online": {
+        "name": "Online"
+      },
+      "in_game": {
+        "name": "In game"
+      },
+      "over_daily_limit": {
+        "name": "Over daily limit"
+      },
+      "playing_blocked_game": {
+        "name": "Playing blocked game"
+      }
+    }
+  }
+}

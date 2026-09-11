@@ -1,0 +1,85 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Roblox foreldrekontroll",
+        "description": "Skriv inn `.ROBLOSECURITY`-cookien fra din Roblox-forelderkonto. Logg inn på roblox.com i en nettleser, åpne DevTools → Application → Cookies og kopier verdien.",
+        "data": {
+          "roblosecurity_cookie": "ROBLOSECURITY-cookie"
+        }
+      },
+      "select_children": {
+        "title": "Velg barn å overvåke",
+        "data": {
+          "child_ids": "Barn"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Logg inn på nytt i Roblox",
+        "description": "Roblox-sesjons-cookien har utløpt. Skriv inn en ny.",
+        "data": {
+          "roblosecurity_cookie": "ROBLOSECURITY-cookie"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Ugyldig eller utløpt cookie. Sjekk verdien og prøv igjen.",
+      "cannot_connect": "Kunne ikke koble til Roblox. Sjekk nettverket og prøv igjen.",
+      "no_children": "Ingen tilknyttede barn funnet på denne forelderkontoen.",
+      "no_children_selected": "Velg minst ett barn."
+    },
+    "abort": {
+      "reauth_successful": "Ny innlogging vellykket."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Roblox foreldrekontroll – innstillinger",
+        "description": "La cookie-feltet stå tomt for å beholde den eksisterende.",
+        "data": {
+          "roblosecurity_cookie": "Ny ROBLOSECURITY-cookie (tom = behold gjeldende)",
+          "slow_poll_interval": "Polleintervall for skjermtid/spill (minutter)",
+          "fast_poll_interval": "Polleintervall for tilstedeværelse (minutter)",
+          "presence_enabled": "Aktiver sanntids tilstedeværelse (online/i spill)"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "screentime_today": {
+        "name": "Skjermtid i dag"
+      },
+      "screentime_week": {
+        "name": "Skjermtid denne uken"
+      },
+      "top_game": {
+        "name": "Topp spill denne uken"
+      },
+      "unique_games_week": {
+        "name": "Unike spill denne uken"
+      },
+      "daily_limit": {
+        "name": "Daglig skjermtidsgrense"
+      },
+      "age_level": {
+        "name": "Aldersrestriksjonsnivå"
+      }
+    },
+    "binary_sensor": {
+      "online": {
+        "name": "Online"
+      },
+      "in_game": {
+        "name": "I spill"
+      },
+      "over_daily_limit": {
+        "name": "Over dagsgrensen"
+      },
+      "playing_blocked_game": {
+        "name": "Spiller blokkert spill"
+      }
+    }
+  }
+}
