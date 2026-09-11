@@ -1,27 +1,27 @@
 blueprint:
-  name: Roblox - Varsle naar barn spiller blokkert spill
+  name: Roblox - Varsle når barn spiller blokkert spill
   description: >
-    Sender push-varsling til companion-appen naar integrasjonen oppdager
-    at et blokkert spill har faatt ny spilletid siden forrige poll.
+    Sender push-varsling til companion-appen når integrasjonen oppdager
+    at et blokkert spill har fått ny spilletid siden forrige poll.
     Krever Roblox Parental Controls-integrasjonen.
   domain: automation
   input:
     blocked_sensor:
       name: Spiller blokkert spill-sensor
-      description: Velg binary_sensor for barnet (Playing blocked game)
+      description: Velg binary_sensor for barnet (Spiller blokkert spill)
       selector:
         entity:
           integration: roblox_parental
           domain: binary_sensor
     top_games_sensor:
       name: Topp spill-sensor
-      description: Velg sensor for barnet (Top games this week)
+      description: Velg sensor for barnet (Topp spill denne uken)
       selector:
         entity:
           integration: roblox_parental
           domain: sensor
     notify_device:
-      name: Telefon aa varsle
+      name: Telefon å varsle
       description: Velg telefonen som skal motta varslingen
       selector:
         device:

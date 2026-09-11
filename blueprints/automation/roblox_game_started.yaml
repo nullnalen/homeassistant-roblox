@@ -1,19 +1,19 @@
 blueprint:
-  name: Roblox - Varsle naar barn starter spill
+  name: Roblox - Varsle når barn starter spill
   description: >
-    Sender push-varsling til companion-appen naar et barn begynner aa spille Roblox.
+    Sender push-varsling til companion-appen når et barn begynner å spille Roblox.
     Krever Roblox Parental Controls-integrasjonen.
   domain: automation
   input:
     in_game_sensor:
       name: I spill-sensor
-      description: Velg binary_sensor for barnet (In game)
+      description: Velg binary_sensor for barnet (I spill)
       selector:
         entity:
           integration: roblox_parental
           domain: binary_sensor
     notify_device:
-      name: Telefon aa varsle
+      name: Telefon å varsle
       description: Velg telefonen som skal motta varslingen
       selector:
         device:

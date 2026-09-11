@@ -7,27 +7,27 @@ blueprint:
   input:
     screentime_today_sensor:
       name: Skjermtid i dag-sensor
-      description: Velg sensor for barnet (Screen time today)
+      description: Velg sensor for barnet (Skjermtid i dag)
       selector:
         entity:
           integration: roblox_parental
           domain: sensor
     screentime_week_sensor:
       name: Skjermtid denne uken-sensor
-      description: Velg sensor for barnet (Screen time this week)
+      description: Velg sensor for barnet (Skjermtid denne uken)
       selector:
         entity:
           integration: roblox_parental
           domain: sensor
     top_games_sensor:
       name: Topp spill-sensor
-      description: Velg sensor for barnet (Top games this week)
+      description: Velg sensor for barnet (Topp spill denne uken)
       selector:
         entity:
           integration: roblox_parental
           domain: sensor
     notify_device:
-      name: Telefon aa varsle
+      name: Telefon å varsle
       description: Velg telefonen som skal motta varslingen
       selector:
         device:
