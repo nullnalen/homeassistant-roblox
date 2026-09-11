@@ -1,0 +1,42 @@
+blueprint:
+  name: "Roblox: Varsle når barn starter spill"
+  description: >
+    Sender en push-varsling når et barn begynner å spille Roblox.
+    Krever Roblox Parental Controls-integrasjonen.
+  domain: automation
+  input:
+    in_game_sensor:
+      name: "I spill"-sensor
+      description: Velg binary_sensor.roblox_*_in_game for barnet
+      selector:
+        entity:
+          integration: roblox_parental
+          domain: binary_sensor
+    notify_target:
+      name: Varslingstjeneste
+      description: >
+        Navn på notify-tjenesten, f.eks. notify.mobile_app_min_telefon
+      selector:
+        text:
+          prefix: notify.
+    child_name:
+      name: Barnets navn
+      description: Brukes i varslingsteksten
+      default: "Barnet"
+      selector:
+        text:
+
+trigger:
+  - platform: state
+    entity_id: !input in_game_sensor
+    from: "off"
+    to: "on"
+
+action:
+  - variables:
+      game_name: >
+        {{ state_attr(trigger.entity_id, 'game') or 'et ukjent spill' }}
+  - service: "notify.{{ notify_target }}"
+    data:
+      title: "🎮 Roblox"
+      message: "{{ child_name }} startet {{ game_name }}"

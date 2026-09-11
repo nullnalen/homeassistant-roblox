@@ -1,0 +1,56 @@
+blueprint:
+  name: "Roblox: Varsle når barn spiller blokkert spill"
+  description: >
+    Sender en push-varsling når integrasjonen oppdager at et blokkert spill
+    har fått ny spilletid siden forrige poll. Blokkering fungerer ikke som forventet.
+    Krever Roblox Parental Controls-integrasjonen.
+  domain: automation
+  input:
+    blocked_sensor:
+      name: "Spiller blokkert spill"-sensor
+      description: Velg binary_sensor.roblox_*_playing_blocked_game for barnet
+      selector:
+        entity:
+          integration: roblox_parental
+          domain: binary_sensor
+    top_games_sensor:
+      name: "Topp spill"-sensor
+      description: Velg sensor.roblox_*_top_games_this_week for barnet
+      selector:
+        entity:
+          integration: roblox_parental
+          domain: sensor
+    notify_target:
+      name: Varslingstjeneste
+      description: >
+        Navn på notify-tjenesten, f.eks. notify.mobile_app_min_telefon
+      selector:
+        text:
+          prefix: notify.
+    child_name:
+      name: Barnets navn
+      default: "Barnet"
+      selector:
+        text:
+
+trigger:
+  - platform: state
+    entity_id: !input blocked_sensor
+    to: "on"
+
+action:
+  - variables:
+      blocked_games: >
+        {% set games = state_attr(top_games_sensor, 'games') or [] %}
+        {% set blocked = games | selectattr('blocked', 'eq', true) | list %}
+        {% if blocked %}
+          {{ blocked | map(attribute='name') | join(', ') }}
+        {% else %}
+          ukjent spill
+        {% endif %}
+  - service: "notify.{{ notify_target }}"
+    data:
+      title: "⚠️ Roblox: Blokkert spill"
+      message: >
+        {{ child_name }} har spilt et blokkert spill: {{ blocked_games }}.
+        Sjekk blokkering i Roblox-appen.

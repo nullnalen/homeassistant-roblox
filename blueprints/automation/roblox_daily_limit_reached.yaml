@@ -1,0 +1,51 @@
+blueprint:
+  name: "Roblox: Varsle når dagsgrense er nådd"
+  description: >
+    Sender en push-varsling når barnet har brukt opp sin daglige skjermtid på Roblox.
+    Krever Roblox Parental Controls-integrasjonen.
+  domain: automation
+  input:
+    over_limit_sensor:
+      name: "Over dagsgrensen"-sensor
+      description: Velg binary_sensor.roblox_*_over_daily_limit for barnet
+      selector:
+        entity:
+          integration: roblox_parental
+          domain: binary_sensor
+    screentime_sensor:
+      name: Skjermtid i dag-sensor
+      description: Velg sensor.roblox_*_screen_time_today for barnet
+      selector:
+        entity:
+          integration: roblox_parental
+          domain: sensor
+    notify_target:
+      name: Varslingstjeneste
+      description: >
+        Navn på notify-tjenesten, f.eks. notify.mobile_app_min_telefon
+      selector:
+        text:
+          prefix: notify.
+    child_name:
+      name: Barnets navn
+      default: "Barnet"
+      selector:
+        text:
+
+trigger:
+  - platform: state
+    entity_id: !input over_limit_sensor
+    from: "off"
+    to: "on"
+
+action:
+  - variables:
+      minutes_today: "{{ states(screentime_sensor) | int(0) }}"
+      hours: "{{ (minutes_today / 60) | int }}"
+      mins: "{{ minutes_today % 60 }}"
+      time_str: >
+        {% if hours > 0 %}{{ hours }}t {{ mins }}min{% else %}{{ mins }}min{% endif %}
+  - service: "notify.{{ notify_target }}"
+    data:
+      title: "⏰ Roblox: Dagsgrense nådd"
+      message: "{{ child_name }} har spilt {{ time_str }} i dag og nådd dagsgrensen."
